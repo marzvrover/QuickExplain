@@ -13,6 +13,8 @@ DEBUG = os.environ.get("QUICKEXPLAIN_DEBUG", "false").lower() == "true"
 MODEL = os.environ.get("QUICKEXPLAIN_MODEL", "wizardlm-13b-v1")
 # estimating tokens as 4 characters each
 TOKEN_LIMIT = os.environ.get("QUICKEXPLAIN_TOKEN_LIMIT", 2048)
+HOST = os.environ.get("QUICKEXPLAIN_HOST", "localhost")
+PORT = os.environ.get("QUICKEXPLAIN_PORT", 8080)
 
 @route('/', method='GET')
 def index():
@@ -69,4 +71,4 @@ def build_message_list(message_history):
     # only take the last TOKEN_LIMIT*4 characters
     return "\n--\n".join(messages)[-TOKEN_LIMIT*4:]
 
-run(host='localhost', port=8080, debug=DEBUG)
+run(host=HOST, port=PORT, debug=DEBUG)

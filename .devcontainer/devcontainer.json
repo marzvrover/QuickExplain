@@ -1,8 +1,14 @@
 {
-  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12-bookworm",
+  "hostRequirements": {
+    "memory": "16gb"
+  },
   "features": {
     "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/devcontainers/features/python:1": {},
     "ghcr.io/devcontainers/features/sshd:1": {}
-  }
+  },
+  "containerEnv": {
+    "QUICKEXPLAIN_MODEL": "wizardlm-13b-v1"
+  },
+  "postCreateCommand": ".devcontainer/scripts/postcreate.sh"
 }
