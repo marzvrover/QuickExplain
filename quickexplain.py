@@ -1,12 +1,15 @@
+#!/usr/bin/env python3
+
 from bottle import request, response, route, run
 from gevent import monkey; monkey.patch_all()
-import llm
 import json
+import llm
+import os
 import time
 
-DEBUG = True
-MODEL = "wizardlm-13b-v1"
-TOKEN_LIMIT = 2048 # estimating tokens as 4 characters each
+DEBUG = os.environ.get("QUICKEXPLAIN_DEBUG", "false").lower() == "true"
+MODEL = os.environ.get("QUICKEXPLAIN_MODEL", "wizardlm-13b-v1")
+TOKEN_LIMIT = os.environ.get("QUICKEXPLAIN_TOKEN_LIMIT", 2048) # estimating tokens as 4 characters each
 
 @route('/', method='GET')
 def index():
@@ -50,11 +53,8 @@ def oauth_callback():
     return '{ "ok": true }'
 
 def buildMessageList(input):
-    messages = []
-    for message in input["messages"]:
-        messages.append(message["content"])
-    messagesAsString = str.join("\n--\n", messages)
+    messages = map(lambda message: message["content"], input["messages"])
     # only take the last TOKEN_LIMIT*4 characters
-    return messagesAsString[-TOKEN_LIMIT*4:]
+    return "\n--\n".join(messages)[-TOKEN_LIMIT*4:]
 
 run(host='localhost', port=8080, debug=DEBUG)
