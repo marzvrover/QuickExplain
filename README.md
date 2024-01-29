@@ -8,6 +8,8 @@ You can find python requirements in `requirements.txt`.
 
 On Linux `glibc` version 2.32 or later is required.
 
+You'll need at least 16gb of RAM for the default model.
+
 ## Run
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/marzvrover/QuickExplain)
