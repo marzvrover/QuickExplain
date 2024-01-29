@@ -1,6 +1,6 @@
 # QuickExplain
 
-Quick Explain is a simple tool explain complex topics.
+Quick Explain is a simple tool to explain complex topics.
 
 ## Requirements
 
