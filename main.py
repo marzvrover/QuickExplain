@@ -1,8 +1,12 @@
 from bottle import request, response, route, run
+from gevent import monkey; monkey.patch_all()
 import llm
 import json
+import time
 
-current_model = "wizardlm-13b-v1"
+DEBUG = True
+MODEL = "wizardlm-13b-v1"
+TOKEN_LIMIT = 2048 # estimating tokens as 4 characters each
 
 @route('/', method='GET')
 def index():
@@ -10,24 +14,32 @@ def index():
 
 @route('/', method='POST')
 def quick_explain():
-    model = llm.get_model(current_model)
-    generated_response =  model.prompt(
-        buildMessageList(request.json),
-        system="Explain the very last message, using the previous messages to optionally add context, to me like I am five",)
-    response.content_type = 'application/json'
+    messageHistory = buildMessageList(request.json)
+    if DEBUG:
+        print(messageHistory)
+
+    model = llm.get_model(MODEL)
+    generatedResponse =  str(model.prompt(
+        messageHistory,
+        system="Explain the very last message, using the previous messages to optionally add context, to me like I am five",))
+    if DEBUG:
+        print(generatedResponse)
+
     responseObject = {
         "id": "QuickExplain",
-        "model": current_model,
+        "created": int(time.time()),
+        "model": MODEL,
         "choices": [{
-            "message": {
-                "role": "assistant",
-                "content": str(generated_response)
+            "index": 0,
+            "delta": {
+                "content": generatedResponse,
             },
         }]
-    }
-    print(buildMessageList(request.json))
-    print(generated_response)
-    return json.dumps(responseObject)
+        }
+
+    response.content_type = 'application/json'
+    response.status = 200
+    return "data: " + json.dumps(responseObject) + "\r\n\r\n"
 
 # Do nothing with the OAuth callback, for now. Just return a 200.
 @route('/oauth/callback')
@@ -41,6 +53,8 @@ def buildMessageList(input):
     messages = []
     for message in input["messages"]:
         messages.append(message["content"])
-    return str.join("--\n", messages)
+    messagesAsString = str.join("\n--\n", messages)
+    # only take the last TOKEN_LIMIT*4 characters
+    return messagesAsString[-TOKEN_LIMIT*4:]
 
-run(host='localhost', port=8080, debug=True)
+run(host='localhost', port=8080, debug=DEBUG)
